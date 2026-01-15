@@ -1,0 +1,47 @@
+<!-- templates/compass.html -->
+{% extends "base.html" %}
+
+{% block title %}VaastuGyan - कम्पास{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 pt-5 pb-5 text-center">
+    <h1 class="spiritual-title mb-4">
+        <i class="fas fa-compass me-2"></i>वास्तु कम्पास
+    </h1>
+    <!-- Add this before compass-container in compass.html -->
+<div class="alert alert-info text-center mb-4">
+    <i class="fas fa-info-circle me-2"></i>
+    <strong>निर्देश:</strong> फोन को समतल रखें और धीरे-धीरे घुमाएं। iPhone पर permission दें।
+</div>
+    <div class="compass-container">
+        <div class="compass-ring" id="compassRing">
+            <div id="directionLabels" class="position-absolute w-100 h-100 d-flex flex-wrap justify-content-center align-items-center">
+                <!-- Directions populated by JS -->
+            </div>
+            <div id="needle" class="position-absolute top-50 start-50 translate-middle">
+                <div class="needle-red"></div>
+                <div class="needle-bottom"></div>
+            </div>
+        </div>
+        <p class="mt-3 text-muted" id="directionText">फोन को समतल रखें</p>
+        <p class="text-saffron fs-6 fw-bold" id="currentDirection">-</p>
+    </div>
+
+    <div class="row mt-4 g-3">
+        {% for dir, label in directions.items() %}
+        <div class="col-6 col-md-3">
+            <div class="card bg-cream h-100">
+                <div class="card-body py-2">
+                    <h6 class="mb-1">{{ dir }}</h6>
+                    <small class="text-saffron fw-bold">{{ label }}</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/compass.js') }}"></script>
+{% endblock %}

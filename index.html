@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}VaastuGyan - पंचांग{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 pt-5 pb-5">
+    <h1 class="text-center mb-4 spiritual-title">
+        <i class="fas fa-sun me-2"></i>वास्तुग्यान
+    </h1>
+    
+    <!-- Date Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-cream border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h2 class="mb-1">{{ panchang.date }}</h2>
+                    <h5 class="text-saffron mb-0"><i class="fas fa-calendar-alt"></i> {{ panchang.tithi }}</h5>
+                    <h6 class="text-muted">{{ panchang.nakshatra }}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ FIXED Rashi Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-cream border-0 shadow-sm rashi-card">
+                <div class="card-body text-center">
+                    <h5 class="text-saffron mb-1"><i class="fas fa-user-circle"></i> आपकी राशि</h5>
+                    <h4 class="mb-2" id="userRashi">{{ rashi }}</h4>
+                    <button class="btn btn-outline-saffron btn-sm" onclick="showRashiSelector()">
+                        <i class="fas fa-edit me-1"></i> बदलें
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auspicious Times -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-center mb-3"><i class="fas fa-clock text-success"></i> शुभ मुहूर्त</h5>
+            <div class="card bg-success bg-opacity-10 border-0">
+                <div class="card-body text-center">
+                    <h4 class="text-success mb-0">अभिजीत मुहूर्त</h4>
+                    <p class="fs-5 fw-bold text-success">{{ panchang.auspicious.abhijit_muhurat }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Times to Avoid -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-center mb-3"><i class="fas fa-ban text-danger"></i> वर्जित समय</h5>
+            <div class="card bg-danger bg-opacity-10 border-0">
+                <div class="card-body text-center">
+                    <h4 class="text-danger mb-0">राहु काल</h4>
+                    <p class="fs-5 fw-bold text-danger">{{ panchang.avoid.rahu_kaal }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rashi Modal -->
+<div class="modal fade" id="rashiModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-cream">
+            <div class="modal-header bg-saffron text-white">
+                <h5 class="modal-title"><i class="fas fa-star me-2"></i>आपकी राशि चुनें</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2" id="rashiGrid">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-saffron" data-bs-dismiss="modal">रद्द करें</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- ✅ SINGLE scripts block - FIXED -->
+{% block scripts %}
+<script>
+const zodiacs = [
+    {"name": "मेष", "symbol": "♈"},
+    {"name": "वृषभ", "symbol": "♉"},
+    {"name": "मिथुन", "symbol": "♊"},
+    {"name": "कर्क", "symbol": "♋"},
+    {"name": "सिंह", "symbol": "♌"},
+    {"name": "कन्या", "symbol": "♍"},
+    {"name": "तुला", "symbol": "♎"},
+    {"name": "वृश्चिक", "symbol": "♏"},
+    {"name": "धनु", "symbol": "♐"},
+    {"name": "मकर", "symbol": "♑"},
+    {"name": "कुंभ", "symbol": "♒"},
+    {"name": "मीन", "symbol": "♓"}
+];
+
+// Load saved rashi
+document.addEventListener('DOMContentLoaded', function() {
+    const savedRashi = localStorage.getItem('userRashi') || 'मेष';
+    document.getElementById('userRashi').textContent = savedRashi;
+});
+
+let currentRashi = localStorage.getItem('userRashi') || 'मेष';
+
+function showRashiSelector() {
+    const grid = document.getElementById('rashiGrid');
+    grid.innerHTML = '';
+    
+    zodiacs.forEach(z => {
+        const col = document.createElement('div');
+        col.className = 'col-4';
+        col.innerHTML = `
+            <button class="btn btn-outline-saffron w-100 p-2 rashi-btn ${currentRashi === z.name ? 'active' : ''}" 
+                    data-rashi="${z.name}">
+                <div class="fs-2 mb-1">${z.symbol}</div>
+                <small>${z.name}</small>
+            </button>
+        `;
+        grid.appendChild(col);
+    });
+    
+    new bootstrap.Modal(document.getElementById('rashiModal')).show();
+    
+    // Add click handlers
+    document.querySelectorAll('.rashi-btn').forEach(btn => {
+        btn.onclick = function() {
+            selectRashi(this.dataset.rashi);
+        };
+    });
+}
+
+function selectRashi(rashiName) {
+    localStorage.setItem('userRashi', rashiName);
+    currentRashi = rashiName;
+    document.getElementById('userRashi').textContent = rashiName;
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('rashiModal'));
+    modal.hide();
+    
+    // Success toast
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = `आपकी राशि ${rashiName} सेट हो गई!`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+}
+</script>
+
+<style>
+.rashi-card:hover { transform: translateY(-2px); }
+.btn-outline-saffron { 
+    color: #FF9933 !important; 
+    border-color: #FF9933 !important; 
+}
+.btn-outline-saffron:hover, .rashi-btn:hover {
+    background: #FF9933 !important;
+    color: white !important;
+}
+.rashi-btn.active {
+    background: #FF9933 !important;
+    color: white !important;
+}
+.toast-notification {
+    position: fixed; top: 20px; right: 20px;
+    background: #FF9933; color: white;
+    padding: 12px 20px; border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(255,153,51,0.4);
+    z-index: 9999; animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,32 @@
+<!-- templates/horoscope.html -->
+{% extends "base.html" %}
+{% block title %}VaastuGyan - राशिफल{% endblock %}
+{% block content %}
+<div class="container-fluid px-3 pt-5 pb-5">
+    <h1 class="text-center spiritual-title mb-5">आज का राशिफल</h1>
+    <div class="row g-3 justify-content-center" id="zodiacGrid">
+        {% for zodiac in zodiacs %}
+        <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+            <div class="card bg-cream h-100 zodiac-card" data-prediction="{{ zodiac.prediction }}">
+                <div class="card-body text-center py-4">
+                    <div class="zodiac-symbol fs-1 mb-2">{{ zodiac.symbol }}</div>
+                    <h6 class="card-title mb-0">{{ zodiac.name }}</h6>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div id="predictionModal" class="modal fade">
+        <!-- Modal content for predictions -->
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.zodiac-card').forEach(card => {
+    card.addEventListener('click', function() {
+        alert(this.dataset.prediction);
+    });
+});
+</script>
+{% endblock %}
